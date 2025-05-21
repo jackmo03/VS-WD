@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "warpdrive:block/block_ship_core" }
+  }
+}

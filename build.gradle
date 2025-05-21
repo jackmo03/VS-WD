@@ -3,6 +3,8 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id "org.jetbrains.kotlin.jvm" version "1.9.10"
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 version = mod_version
@@ -117,9 +119,35 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    // flatDir {
-    //     dir 'libs'
-    // }
+    flatDir {
+        dir 'libs'
+    }
+
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
+    maven { url = 'https://maven.minecraftforge.net' }
+    maven {
+        name = 'tterrag maven'
+        url = 'https://maven.tterrag.com/'
+    }
+
+    maven {
+        name = 'Kotlin for Forge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
+
+    maven { url 'https://maven.valkyrienskies.org/' }
+
+    maven { url = "https://maven.bawnorton.com/releases" }
+
+    maven { url 'https://maven.covers1624.net/' }
+    maven { url 'https://maven.blamejared.com/' }
+    maven { url 'https://maven.theillusivec4.top/' }
 }
 
 dependencies {
@@ -132,18 +160,43 @@ dependencies {
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")
-    // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}")
-    // runtimeOnly fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}")
+    // compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    // compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
+    // runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
     // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
+    // This maps to ./libs/coolmod-${minecraft_version}-${coolmod_version}.jar
     // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
+    // implementation fg.deobf("blank:coolmod-${minecraft_version}:${coolmod_version}")
 
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    // vs2 dependencies
+    implementation fg.deobf("org.valkyrienskies:valkyrienskies-120-forge:${vs2_version}") { transitive = false }
+
+    compileOnly ("org.valkyrienskies.core:api:${vs_core_version}")
+    compileOnly ("org.valkyrienskies.core:api-game:${vs_core_version}")
+    compileOnly ("org.valkyrienskies.core:util:${vs_core_version}")
+    compileOnly ("org.valkyrienskies.core:impl:${vs_core_version}")
+
+    implementation "thedarkcolour:kotlinforforge:$forge_kotlin_version"
+
+    implementation("org.joml:joml:1.10.4") { transitive = false }
+    implementation("org.joml:joml-primitives:1.10.0") { transitive = false }
+
+    // cc:t dependencies
+    implementation fg.deobf("curse.maven:cc-tweaked-282001:5714507")
+
+    //thermal expansion dependencies
+    //implementation fg.deobf("com.teamcofh:cofh_core:${minecraft_version}-${cofh_core_version}")
+    //implementation fg.deobf("com.teamcofh:thermal_core:${minecraft_version}-${thermal_core_version}")
+    //implementation fg.deobf("com.teamcofh:thermal_cultivation:${minecraft_version}-${thermal_cultivation_version}")
+    //implementation fg.deobf("com.teamcofh:thermal_foundation:${minecraft_version}-${thermal_foundation_version}")
+    //implementation fg.deobf("com.teamcofh:thermal_expansion:${minecraft_version}-${thermal_expansion_version}")
+    //implementation fg.deobf("com.teamcofh:thermal_innovation:${minecraft_version}-${thermal_innovation_version}")
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

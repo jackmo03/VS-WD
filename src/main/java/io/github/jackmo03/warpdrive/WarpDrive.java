@@ -1,6 +1,7 @@
 package io.github.jackmo03.warpdrive;
 
 import com.mojang.logging.LogUtils;
+import io.github.jackmo03.warpdrive.item.ItemShipCore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
@@ -27,6 +28,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
+import io.github.jackmo03.warpdrive.block.BlockShipCore;
+
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(WarpDrive.MODID)
@@ -48,6 +51,16 @@ public class WarpDrive
     // Creates a new BlockItem with the id "examplemod:example_block", combining the namespace and path
     public static final RegistryObject<Item> EXAMPLE_BLOCK_ITEM = ITEMS.register("example_block", () -> new BlockItem(EXAMPLE_BLOCK.get(), new Item.Properties()));
 
+    // 注册方块
+    public static final RegistryObject<Block> BLOCK_SHIP_CORE =
+            BLOCKS.register("block_ship_core", BlockShipCore::new);
+
+    // 注册对应的方块物品
+    public static final RegistryObject<Item> ITEM_SHIP_CORE =
+            ITEMS.register("item_ship_core",
+                    () -> new ItemShipCore(BLOCK_SHIP_CORE.get()));
+
+
     // Creates a new food item with the id "examplemod:example_id", nutrition 1 and saturation 2
     public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item", () -> new Item(new Item.Properties().food(new FoodProperties.Builder()
             .alwaysEat().nutrition(1).saturationMod(2f).build())));
@@ -67,9 +80,9 @@ public class WarpDrive
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
-        // Register the Deferred Register to the mod event bus so blocks get registered
+        // Register the Deferred Register to the mod event bus so block get registered
         BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so items get registered
+        // Register the Deferred Register to the mod event bus so item get registered
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
@@ -97,11 +110,13 @@ public class WarpDrive
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
 
-    // Add the example block item to the building blocks tab
+    // Add the example block item to the building block tab
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS){
             event.accept(EXAMPLE_BLOCK_ITEM);
+            event.accept(ITEM_SHIP_CORE);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
