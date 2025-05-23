@@ -1,20 +1,26 @@
 package io.github.jackmo03.warpdrive;
 
 import com.mojang.logging.LogUtils;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import io.github.jackmo03.warpdrive.item.ItemShipCore;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -29,6 +35,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 import io.github.jackmo03.warpdrive.block.BlockShipCore;
+import dan200.computercraft.api.ForgeComputerCraftAPI;
+import io.github.jackmo03.warpdrive.compat.cct.peripheral.PShipCore;
+
 
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -95,6 +104,11 @@ public class WarpDrive
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        // Register ComputerCraft peripheral provider
+        ForgeComputerCraftAPI.registerPeripheralProvider(new ShipCorePeripheralProvider());
+
+
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -137,6 +151,17 @@ public class WarpDrive
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        }
+    }
+
+    private static class ShipCorePeripheralProvider implements IPeripheralProvider {
+        @Override
+        public LazyOptional<IPeripheral> getPeripheral(Level world, BlockPos pos, Direction side) {
+            Block block = world.getBlockState(pos).getBlock();
+            if (block instanceof BlockShipCore) {
+                return LazyOptional.of(() -> new PShipCore(world, pos));
+            }
+            return LazyOptional.empty();
         }
     }
 }
