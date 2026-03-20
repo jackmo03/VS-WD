@@ -1,4 +1,6 @@
 {
-  "parent": "block/cube",
-  "texture": "warpdrive:block/wip.png"
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "warpdrive:block/wip"
+  }
 }
