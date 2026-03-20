@@ -3,6 +3,9 @@ package io.github.jackmo03.warpdrive;
 import com.mojang.logging.LogUtils;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import io.github.jackmo03.warpdrive.item.ItemFCUDestroyer;
+import io.github.jackmo03.warpdrive.item.ItemFCUFrigate;
+import io.github.jackmo03.warpdrive.item.ItemFCUShuttle;
 import io.github.jackmo03.warpdrive.item.ItemShipCore;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -58,6 +61,15 @@ public class WarpDrive {
     // 注册对应的方块物品
     public static final RegistryObject<Item> ITEM_SHIP_CORE = ITEMS.register("item_ship_core",
             () -> new ItemShipCore(BLOCK_SHIP_CORE.get()));
+
+    public static final RegistryObject<Item> ITEM_FCU_SHUTTLE = ITEMS.register("item_fcu_shuttle",
+            () -> new ItemFCUShuttle(new Item.Properties()));
+
+    public static final RegistryObject<Item> ITEM_FCU_FRIGATE = ITEMS.register("item_fcu_frigate",
+            () -> new ItemFCUFrigate(new Item.Properties()));
+
+    public static final RegistryObject<Item> ITEM_FCU_DESTROYER = ITEMS.register("item_fcu_destroyer",
+            () -> new ItemFCUDestroyer(new Item.Properties()));
 
     // Creates a creative tab for WarpDrive
     public static final RegistryObject<CreativeModeTab> WARP_DRIVE_TAB = CREATIVE_MODE_TABS.register("warpdrive_tab",
