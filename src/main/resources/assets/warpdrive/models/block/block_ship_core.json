@@ -1,6 +1,11 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "warpdrive:block/cube",
   "textures": {
-    "all": "warpdrive:block/wip"
+    "north": "warpdrive:block/block_ship_core-front",
+    "south": "warpdrive:block/block_ship_core-back",
+    "east": "warpdrive:block/block_ship_core-right",
+    "west": "warpdrive:block/block_ship_core-left",
+    "up": "warpdrive:block/block_ship_core-top_bottom",
+    "down": "warpdrive:block/block_ship_core-top_bottom"
   }
 }
