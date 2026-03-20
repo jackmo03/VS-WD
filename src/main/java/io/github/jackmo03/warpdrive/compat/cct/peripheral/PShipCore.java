@@ -2,17 +2,21 @@ package io.github.jackmo03.warpdrive.compat.cct.peripheral;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.peripheral.PeripheralType;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
+import org.valkyrienskies.core.api.ships.LoadedServerShip;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
+import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PShipCore implements IPeripheral {
-    //private final World world;
     private final BlockPos pos;
     private final Level world;
 
@@ -32,28 +36,94 @@ public class PShipCore implements IPeripheral {
         return this == other || (other instanceof PShipCore && ((PShipCore) other).pos.equals(pos));
     }
 
-    // Example Lua-accessible functions
+    private LoadedServerShip getShip() {
+        if (world instanceof ServerLevel) {
+            return VSGameUtilsKt.getLoadedShipManagingPos((ServerLevel) world, pos);
+        }
+        return null;
+    }
+
     @LuaFunction
     public final String getShipName() {
-        // Implement your ship name logic here
-        return "Unnamed Ship";
+        LoadedServerShip ship = getShip();
+        if (ship == null)
+            return "No Ship";
+        return ship.getSlug() != null ? ship.getSlug() : "Unnamed Ship";
+    }
+
+    @LuaFunction
+    public final Long getId() {
+        LoadedServerShip ship = getShip();
+        return ship != null ? ship.getId() : null;
+    }
+
+    @LuaFunction
+    public final Double getMass() {
+        LoadedServerShip ship = getShip();
+        return ship != null ? ship.getInertiaData().getMass() : null;
+    }
+
+    @LuaFunction
+    public final Map<String, Double> getVelocity() {
+        LoadedServerShip ship = getShip();
+        if (ship == null)
+            return null;
+        Vector3dc vel = ship.getVelocity();
+        Map<String, Double> map = new HashMap<>();
+        map.put("x", vel.x());
+        map.put("y", vel.y());
+        map.put("z", vel.z());
+        return map;
     }
 
     @LuaFunction
     public final Map<String, Object> getShipStatus() {
         Map<String, Object> status = new HashMap<>();
-        // Add your status fields here
-        status.put("health", 100);
-        status.put("fuel", 75.5);
-        status.put("online", true);
+        LoadedServerShip ship = getShip();
+        if (ship != null) {
+            status.put("online", true);
+            status.put("mass", ship.getInertiaData().getMass());
+        } else {
+            status.put("online", false);
+        }
         return status;
     }
 
     @LuaFunction
-    public final boolean activateThrusters(boolean state) {
-        // Implement thruster control logic here
-        return state;
+    public final void applyBodyForce(double x, double y, double z) {
+        LoadedServerShip ship = getShip();
+        if (ship != null && world instanceof ServerLevel) {
+            String dimId = VSGameUtilsKt.getDimensionId(world);
+            ValkyrienSkiesMod.getOrCreateGTPA(dimId).applyBodyForce(ship.getId(), new Vector3d(x, y, z),
+                    new Vector3d());
+        }
     }
 
-    // ... rest of peripheral methods can be added here ...
+    @LuaFunction
+    public final void applyWorldForce(double x, double y, double z) {
+        LoadedServerShip ship = getShip();
+        if (ship != null && world instanceof ServerLevel) {
+            String dimId = VSGameUtilsKt.getDimensionId(world);
+            ValkyrienSkiesMod.getOrCreateGTPA(dimId).applyWorldForce(ship.getId(), new Vector3d(x, y, z),
+                    null);
+        }
+    }
+
+    @LuaFunction
+    public final void applyWorldTorque(double x, double y, double z) {
+        LoadedServerShip ship = getShip();
+        if (ship != null && world instanceof ServerLevel) {
+            String dimId = VSGameUtilsKt.getDimensionId(world);
+            ValkyrienSkiesMod.getOrCreateGTPA(dimId).applyWorldTorque(ship.getId(), new Vector3d(x, y, z));
+        }
+    }
+
+    @LuaFunction
+    public final void applyBodyTorque(double x, double y, double z) {
+        LoadedServerShip ship = getShip();
+        if (ship != null && world instanceof ServerLevel) {
+            String dimId = VSGameUtilsKt.getDimensionId(world);
+            ValkyrienSkiesMod.getOrCreateGTPA(dimId).applyBodyTorque(ship.getId(), new Vector3d(x, y, z));
+        }
+    }
 }
