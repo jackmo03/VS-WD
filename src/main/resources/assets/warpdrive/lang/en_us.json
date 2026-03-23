@@ -1,3 +1,6 @@
 {
-  "block.warpdrive.block_ship_core": "Ship Core"
+  "block.warpdrive.block_ship_core": "Ship Core",
+  "item.warpdrive.item_fcu_shuttle": "FCU Shuttle",
+  "item.warpdrive.item_fcu_frigate": "FCU Frigate",
+  "item.warpdrive.item_fcu_destroyer": "FCU Destroyer"
 }
