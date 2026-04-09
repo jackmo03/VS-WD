@@ -17,6 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
@@ -34,6 +35,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 import io.github.jackmo03.warpdrive.block.BlockShipCore;
+import io.github.jackmo03.warpdrive.block.entity.BlockEntityShipCore;
 import dan200.computercraft.api.ForgeComputerCraftAPI;
 import io.github.jackmo03.warpdrive.compat.cct.peripheral.PShipCore;
 
@@ -54,9 +56,13 @@ public class WarpDrive {
     // registered under the "examplemod" namespace
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister
             .create(Registries.CREATIVE_MODE_TAB, MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, MODID);
 
     // 注册方块
     public static final RegistryObject<Block> BLOCK_SHIP_CORE = BLOCKS.register("block_ship_core", BlockShipCore::new);
+
+    public static final RegistryObject<BlockEntityType<BlockEntityShipCore>> BLOCK_ENTITY_SHIP_CORE =
+            BLOCK_ENTITIES.register("ship_core", () -> BlockEntityType.Builder.of(BlockEntityShipCore::new, BLOCK_SHIP_CORE.get()).build(null));
 
     // 注册对应的方块物品
     public static final RegistryObject<Item> ITEM_SHIP_CORE = ITEMS.register("item_ship_core",
@@ -93,6 +99,8 @@ public class WarpDrive {
         ITEMS.register(modEventBus);
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
+        // Register block entities
+        BLOCK_ENTITIES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
@@ -146,6 +154,10 @@ public class WarpDrive {
     private static class ShipCorePeripheralProvider implements IPeripheralProvider {
         @Override
         public LazyOptional<IPeripheral> getPeripheral(Level world, BlockPos pos, Direction side) {
+            net.minecraft.world.level.block.entity.BlockEntity be = world.getBlockEntity(pos);
+            if (be instanceof BlockEntityShipCore) {
+                return LazyOptional.of(() -> new PShipCore(world, pos, (BlockEntityShipCore) be));
+            }
             Block block = world.getBlockState(pos).getBlock();
             if (block instanceof BlockShipCore) {
                 return LazyOptional.of(() -> new PShipCore(world, pos));

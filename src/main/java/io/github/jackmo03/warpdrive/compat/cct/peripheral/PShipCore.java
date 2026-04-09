@@ -14,6 +14,8 @@ import org.valkyrienskies.core.impl.game.ShipTeleportDataImpl;
 import dan200.computercraft.api.lua.LuaException;
 import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.common.ValkyrienSkiesMod;
+import io.github.jackmo03.warpdrive.block.entity.BlockEntityShipCore;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,10 +25,16 @@ import java.util.Map;
 public class PShipCore implements IPeripheral {
     private final BlockPos pos;
     private final Level world;
+    private final BlockEntityShipCore blockEntity;
 
     public PShipCore(Level world, BlockPos pos) {
+        this(world, pos, null);
+    }
+    
+    public PShipCore(Level world, BlockPos pos, BlockEntityShipCore blockEntity) {
         this.world = world;
         this.pos = pos;
+        this.blockEntity = blockEntity;
     }
 
     @Nonnull
@@ -47,7 +55,7 @@ public class PShipCore implements IPeripheral {
         return null;
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final String getShipName() {
         LoadedServerShip ship = getShip();
         if (ship == null)
@@ -55,19 +63,19 @@ public class PShipCore implements IPeripheral {
         return ship.getSlug() != null ? ship.getSlug() : "Unnamed Ship";
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final Long getId() {
         LoadedServerShip ship = getShip();
         return ship != null ? ship.getId() : null;
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final Double getMass() {
         LoadedServerShip ship = getShip();
         return ship != null ? ship.getInertiaData().getMass() : null;
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final Map<String, Double> getVelocity() {
         LoadedServerShip ship = getShip();
         if (ship == null)
@@ -80,7 +88,7 @@ public class PShipCore implements IPeripheral {
         return map;
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final Map<String, Object> getShipStatus() {
         Map<String, Object> status = new HashMap<>();
         LoadedServerShip ship = getShip();
@@ -93,7 +101,7 @@ public class PShipCore implements IPeripheral {
         return status;
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final void applyBodyForce(double x, double y, double z) {
         LoadedServerShip ship = getShip();
         if (ship != null && world instanceof ServerLevel) {
@@ -103,7 +111,7 @@ public class PShipCore implements IPeripheral {
         }
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final void applyWorldForce(double x, double y, double z) {
         LoadedServerShip ship = getShip();
         if (ship != null && world instanceof ServerLevel) {
@@ -113,7 +121,7 @@ public class PShipCore implements IPeripheral {
         }
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final void applyWorldTorque(double x, double y, double z) {
         LoadedServerShip ship = getShip();
         if (ship != null && world instanceof ServerLevel) {
@@ -122,7 +130,7 @@ public class PShipCore implements IPeripheral {
         }
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final void applyBodyTorque(double x, double y, double z) {
         LoadedServerShip ship = getShip();
         if (ship != null && world instanceof ServerLevel) {
@@ -131,7 +139,7 @@ public class PShipCore implements IPeripheral {
         }
     }
 
-    @LuaFunction
+    @LuaFunction(mainThread = true)
     public final void teleport(Map<?, ?> input) throws LuaException {
         LoadedServerShip ship = getShip();
         if (ship == null || !(world instanceof ServerLevel)) {
@@ -216,5 +224,23 @@ public class PShipCore implements IPeripheral {
             throw new LuaException("Malformed " + field + " key of " + section);
         }
         return ((Number) val).doubleValue();
+    }
+
+    @LuaFunction(mainThread = true)
+    public final int getEnergy() {
+        BlockEntityShipCore be = this.blockEntity != null ? this.blockEntity : (BlockEntityShipCore) world.getBlockEntity(pos);
+        if (be != null) {
+            return be.getEnergyStorage().getEnergyStored();
+        }
+        return 0;
+    }
+
+    @LuaFunction(mainThread = true)
+    public final int getMaxEnergy() {
+        BlockEntityShipCore be = this.blockEntity != null ? this.blockEntity : (BlockEntityShipCore) world.getBlockEntity(pos);
+        if (be != null) {
+            return be.getEnergyStorage().getMaxEnergyStored();
+        }
+        return 0;
     }
 }
